@@ -1,46 +1,52 @@
 import sys
-import functools
+# import functools
 
 CONTACTS = {}
 
+ANSWER = {
+    "1": "How can I help you?",
+    "2": "Contact save fine!",
+    "3": "Contact update fine!",
+    "4": "Enter user name",
+    "5": "Give me name and phone please"
+}
 
-def input_error(func):
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        while True:
-            try:
-                return func(*args, **kwargs)
-            except Exception:
-                pass
-    return wrapper
+
+# def input_error(func):
+#     def inner(phone, name):
+#         try:
+#             s_result = func(phone, name)
+#         except:
+#             print("Error")
+#         return s_result
+#     return inner
 
 
 def command_hello(phone="", name="") -> str:
-    print("How can I help you?")
-    return "How can I help you?"
+    return ANSWER["1"]
 
 
-@input_error
+# @input_error
 def command_add(phone="", name="") -> str:
     CONTACTS[name] = phone
-    answer = "Contact save fine!"
+    answer = ANSWER["2"]
     return answer
 
 
-@input_error
+# @input_error
 def command_change(phone="", name="") -> str:
     CONTACTS[name] = phone
-    answer = "Contact update fine!"
+    answer = ANSWER["3"]
     return answer
 
 
-@input_error
+# @input_error
 def command_phone(phone="", name="") -> str:
     answer = CONTACTS[name]
     return answer
 
 
-@input_error
+# @input_error
 def command_show_all(phone="", name="") -> str:
     list_a = []
     for k, v in CONTACTS.keys(), CONTACTS.values():
@@ -68,7 +74,7 @@ PARSER = {
 
 
 def command(input_command: str):
-    return PARSER[input_command]
+    return PARSER[input_command]()
 
 
 def main():
@@ -80,7 +86,7 @@ def main():
         for k in PARSER.keys():
             if s.startswith(k):
                 input_com = k
-                pert_2_s = s.removeprefix(k)
+                pert_2_s = s.removeprefix(k+" ")
                 itar_avel = True
                 break
         if not itar_avel:
