@@ -1,7 +1,8 @@
 import sys
+# import functools
 
 CONTACTS = {
-    "name": "+38099066222"
+    "name": "+380XXXXXXXXX"
 }
 
 ANSWER = {
@@ -14,53 +15,73 @@ ANSWER = {
 
 
 def input_error(func):
-    def inner(phone, name):
+    def inner(*args):
         try:
-            s_result = func(phone, name)
-        except:
-            print("Error")
-        return s_result
+            s_result = func(*args)
+            return s_result
+        except Exception as e:
+            return e
     return inner
 
 
+@input_error
 def command_hello() -> str:
     return ANSWER["1"]
 
 
 @input_error
-def command_add(phone="", name="") -> str:
+def command_add(name, phone) -> str:
     CONTACTS[name] = phone
-    answer = ANSWER["2"]
-    return answer
+    return ANSWER["2"]
 
 
 @input_error
-def command_change(phone="", name="") -> str:
+def command_change(name, phone) -> str:
     CONTACTS[name] = phone
-    answer = ANSWER["3"]
-    return answer
+    return ANSWER["3"]
 
 
 @input_error
-def command_phone(name="") -> str:
+def command_phone(name) -> str:
     answer = CONTACTS[name]
     return answer
 
 
+@input_error
 def command_show_all() -> str:
     list_a = []
-    print(CONTACTS)
     for k in CONTACTS.keys():
         list_a.append(k)
-        list_a.append(" ")
         list_a.append(CONTACTS[k])
         list_a.append("\n")
-    answer = "".join(list_a)
+    answer = " ".join(list_a)
     return answer
 
 
+@input_error
 def command_exit():
     sys.exit("Good bye!")
+
+
+PARSER_1 = {
+    "add": command_add,
+    "change": command_change,
+    "phone": command_phone
+}
+PARSER_2 = {
+    "hello": command_hello,
+    "show all": command_show_all,
+    "good bye": command_exit,
+    "close": command_exit,
+    "exit": command_exit
+}
+
+
+def command(input_command: str):
+    if PARSER_1.get(input_command, False):
+        return PARSER_1[input_command]
+    else:
+        return PARSER_2[input_command]()
 
 
 def main():
@@ -68,23 +89,32 @@ def main():
         s = input("Enter command:").lower()
         if s == ".":
             break
-        input_list = s.split(" ")
-        input_com = input_list[0]
-        if input_com == "hello":
-            result = command_hello()
-        elif (input_com == "good bye") or (input_com == "exit") or (input_com == "close"):
-            command_exit()
-        elif input_com == "add":
-            result = command_add(input_list[1], input_list[2])
-        elif input_com == "change":
-            result = command(input_list[1], input_list[2])
-        elif input_com == "phone":
-            result = command_phone(input_list[1])
-        elif input_com == "show all":
-            result = command_show_all(input_list[1])
-        else:
+        itar_avel = False
+        PARSER = PARSER_1.copy()
+        PARSER.update(PARSER_2)
+        for k in PARSER.keys():
+            if k in s:
+                input_com = k
+                pert_2_s = s.removeprefix(k).strip()
+                itar_avel = True
+                break
+        if not itar_avel:
             print("Command undefined! Try again!")
-            continue
+            break
+        input_list = pert_2_s.split(" ")
+        # input_list.remove("")
+        for i in input_list:
+            if i.isalpha():
+                name = i
+                input_list.remove(name)
+                phone = " ".join(input_list)
+                break
+        if (input_com == "add") or (input_com == "change"):
+            result = command(input_com)(name, phone)
+        elif input_com == "phone":
+            result = command(input_com)(name)
+        else:
+            result = command(input_com)
         print(result)
 
 
