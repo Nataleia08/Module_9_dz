@@ -17,6 +17,8 @@ ANSWER = {
 
 
 def input_error_main(func):
+    """Декоратор для функції main"""
+
     def inner(*args, **kwargs):
         while True:
             try:
@@ -34,6 +36,7 @@ def input_error_main(func):
 
 
 def input_error(func):
+    """Декоратор для handler-функцій"""
     def inner(*args, **kwargs):
         try:
             s_result = func(*args, **kwargs)
@@ -53,22 +56,25 @@ def input_error(func):
             elif e.__class__ == ValueError:
                 return ANSWER["8"]
             else:
-                print(ANSWER["6"])
+                return ANSWER["6"]
     return inner
 
 
 def command_hello() -> str:
+    """Функція привітання"""
     return ANSWER["1"]
 
 
 @input_error
-def command_add(phone, name) -> str:
+def command_add(phone: str, name: str) -> str:
+    """Функція додання контакту до словника"""
     CONTACTS[name] = phone
     return ANSWER["2"]
 
 
 @input_error
-def command_change(phone, name) -> str:
+def command_change(phone: str, name: str) -> str:
+    """Функція зміни номерів телефону в словнику"""
     if CONTACTS[name]:
         CONTACTS[name] = CONTACTS[name] + " ," + phone
         return ANSWER["3"]
@@ -77,12 +83,14 @@ def command_change(phone, name) -> str:
 
 
 @input_error
-def command_phone(name) -> str:
+def command_phone(name: str) -> str:
+    """Функція пошуку телефону по імені користувача"""
     answer = CONTACTS[name]
     return answer
 
 
 def command_show_all() -> str:
+    """Функція відображення списку контактів"""
     list_a = []
     for k in CONTACTS.keys():
         list_a.append(k)
@@ -93,6 +101,7 @@ def command_show_all() -> str:
 
 
 def command_exit():
+    """Функція виходу"""
     sys.exit("Good bye!")
 
 
@@ -111,6 +120,7 @@ PARSER_2 = {
 
 
 def command(input_command: str):
+    """Функція, що по введеній команді викликає відповідну handler-функцію"""
     if PARSER_1.get(input_command, False):
         return PARSER_1[input_command]
     else:
@@ -125,6 +135,7 @@ def main():
         s = input("Enter command:").lower()
         if s == ".":
             break
+        # --------Пошук команди у введеному рядку--------------------
         itar_avel = False
         for k in PARSER.keys():
             if k in s:
@@ -135,6 +146,7 @@ def main():
         if not itar_avel:
             print("Command undefined! Try again!")
             continue
+        # ------------------Пошук імені у введеному рядку--------------
         input_list = pert_2_s.split(" ")
         for i in input_list:
             if i.isalpha():
@@ -142,6 +154,7 @@ def main():
                 input_list.remove(name)
                 phone = " ".join(input_list)
                 break
+        # --------------Виклик відповідної команди----------------------
         if (input_com == "add") or (input_com == "change"):
             result = command(input_com)(phone, name)
             del name, phone
