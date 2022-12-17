@@ -1,7 +1,7 @@
 import sys
 
 CONTACTS = {
-    "name": "+380XXXXXXXXX"
+    "name": "phones"
 }
 
 ANSWER = {
@@ -10,7 +10,8 @@ ANSWER = {
     "3": "Contact update fine!",
     "4": "Enter user name",
     "5": "Give me name and phone please",
-    "6": "Unknown error. Try entering the command again!"
+    "6": "Unknown error. Try entering the command again!",
+    "7": "There is no user with this name"
 }
 
 
@@ -21,15 +22,31 @@ def input_error(func):
                 s_result = func(*args, **kwargs)
                 return s_result
             except Exception as e:
-                # print(e)
-                # return e
-                if func == command_phone:
-                    print(ANSWER["4"])
-                elif (func == command_add) or (func == command_change):
-                    print(ANSWER["5"])
-                else:
-                    print(ANSWER["6"])
+                if e.__class__ == UnboundLocalError:
+                    if "name" in e.args[0]:
+                        print(ANSWER["4"])
+                    elif "phone" in e.args[0]:
+                        print(ANSWER["5"])
+                    else:
+                        print(ANSWER["6"])
+                elif e.__class__ == IndexError:
+                    print(ANSWER["7"])
     return inner
+
+
+# def input_error_1(func):
+#     def inner(*args, **kwargs):
+#         try:
+#             s_result = func(*args, **kwargs)
+#             return s_result
+#         except IndexError:
+#             if "name_1" in e.args[0]:
+#                 print(ANSWER["4"])
+#             elif ("name" in e.args[0]) or ("phone" in e.args[0]):
+#                 print(ANSWER["5"])
+#             else:
+#                 print(ANSWER["6"])
+#     return inner
 
 
 def command_hello() -> str:
@@ -37,13 +54,13 @@ def command_hello() -> str:
 
 
 @input_error
-def command_add(name, phone) -> str:
+def command_add(phone, name) -> str:
     CONTACTS[name] = phone
     return ANSWER["2"]
 
 
 @input_error
-def command_change(name, phone) -> str:
+def command_change(phone, name) -> str:
     CONTACTS[name] = phone
     return ANSWER["3"]
 
@@ -91,13 +108,13 @@ def command(input_command: str):
 
 @input_error
 def main():
+    PARSER = PARSER_1.copy()
+    PARSER.update(PARSER_2)
     while True:
         s = input("Enter command:").lower()
         if s == ".":
             break
         itar_avel = False
-        PARSER = PARSER_1.copy()
-        PARSER.update(PARSER_2)
         for k in PARSER.keys():
             if k in s:
                 input_com = k
@@ -106,7 +123,7 @@ def main():
                 break
         if not itar_avel:
             print("Command undefined! Try again!")
-            break
+            continue
         input_list = pert_2_s.split(" ")
         for i in input_list:
             if i.isalpha():
@@ -115,9 +132,11 @@ def main():
                 phone = " ".join(input_list)
                 break
         if (input_com == "add") or (input_com == "change"):
-            result = command(input_com)(name, phone)
+            result = command(input_com)(phone, name)
+            del name, phone
         elif input_com == "phone":
             result = command(input_com)(name)
+            del name
         else:
             result = command(input_com)
         print(result)
