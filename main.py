@@ -8,14 +8,15 @@ ANSWER = {
     "1": "How can I help you?",
     "2": "Contact save fine!",
     "3": "Contact update fine!",
-    "4": "Enter user name",
-    "5": "Give me name and phone please",
+    "4": "Enter user name!",
+    "5": "Give me name and phone please!",
     "6": "Unknown error. Try entering the command again!",
-    "7": "There is no user with this name"
+    "7": "There is no user with this name!",
+    "8": "You entered something wrong!"
 }
 
 
-def input_error(func):
+def input_error_main(func):
     def inner(*args, **kwargs):
         while True:
             try:
@@ -29,24 +30,31 @@ def input_error(func):
                         print(ANSWER["5"])
                     else:
                         print(ANSWER["6"])
-                elif e.__class__ == IndexError:
-                    print(ANSWER["7"])
     return inner
 
 
-# def input_error_1(func):
-#     def inner(*args, **kwargs):
-#         try:
-#             s_result = func(*args, **kwargs)
-#             return s_result
-#         except IndexError:
-#             if "name_1" in e.args[0]:
-#                 print(ANSWER["4"])
-#             elif ("name" in e.args[0]) or ("phone" in e.args[0]):
-#                 print(ANSWER["5"])
-#             else:
-#                 print(ANSWER["6"])
-#     return inner
+def input_error(func):
+    def inner(*args, **kwargs):
+        try:
+            s_result = func(*args, **kwargs)
+            return s_result
+        except Exception as e:
+            if e.__class__ == UnboundLocalError:
+                if "name" in e.args[0]:
+                    print(ANSWER["4"])
+                elif "phone" in e.args[0]:
+                    print(ANSWER["5"])
+                else:
+                    print(ANSWER["6"])
+            elif e.__class__ == IndexError:
+                return ANSWER["7"]
+            elif e.__class__ == KeyError:
+                return ANSWER["7"]
+            elif e.__class__ == ValueError:
+                return ANSWER["8"]
+            else:
+                print(ANSWER["6"])
+    return inner
 
 
 def command_hello() -> str:
@@ -61,8 +69,11 @@ def command_add(phone, name) -> str:
 
 @input_error
 def command_change(phone, name) -> str:
-    CONTACTS[name] = phone
-    return ANSWER["3"]
+    if CONTACTS[name]:
+        CONTACTS[name] = CONTACTS[name] + " ," + phone
+        return ANSWER["3"]
+    else:
+        return ANSWER["7"]
 
 
 @input_error
@@ -106,7 +117,7 @@ def command(input_command: str):
         return PARSER_2[input_command]()
 
 
-@input_error
+@input_error_main
 def main():
     PARSER = PARSER_1.copy()
     PARSER.update(PARSER_2)
