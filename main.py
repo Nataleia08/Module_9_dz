@@ -1,5 +1,4 @@
 import sys
-# import functools
 
 CONTACTS = {
     "name": "+380XXXXXXXXX"
@@ -10,21 +9,29 @@ ANSWER = {
     "2": "Contact save fine!",
     "3": "Contact update fine!",
     "4": "Enter user name",
-    "5": "Give me name and phone please"
+    "5": "Give me name and phone please",
+    "6": "Unknown error. Try entering the command again!"
 }
 
 
 def input_error(func):
-    def inner(*args):
-        try:
-            s_result = func(*args)
-            return s_result
-        except Exception as e:
-            return e
+    def inner(*args, **kwargs):
+        while True:
+            try:
+                s_result = func(*args, **kwargs)
+                return s_result
+            except Exception as e:
+                # print(e)
+                # return e
+                if func == command_phone:
+                    print(ANSWER["4"])
+                elif (func == command_add) or (func == command_change):
+                    print(ANSWER["5"])
+                else:
+                    print(ANSWER["6"])
     return inner
 
 
-@input_error
 def command_hello() -> str:
     return ANSWER["1"]
 
@@ -47,7 +54,6 @@ def command_phone(name) -> str:
     return answer
 
 
-@input_error
 def command_show_all() -> str:
     list_a = []
     for k in CONTACTS.keys():
@@ -58,7 +64,6 @@ def command_show_all() -> str:
     return answer
 
 
-@input_error
 def command_exit():
     sys.exit("Good bye!")
 
@@ -84,6 +89,7 @@ def command(input_command: str):
         return PARSER_2[input_command]()
 
 
+@input_error
 def main():
     while True:
         s = input("Enter command:").lower()
@@ -102,7 +108,6 @@ def main():
             print("Command undefined! Try again!")
             break
         input_list = pert_2_s.split(" ")
-        # input_list.remove("")
         for i in input_list:
             if i.isalpha():
                 name = i
