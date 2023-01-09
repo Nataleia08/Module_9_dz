@@ -93,7 +93,7 @@ def command_show_all() -> str:
     """Функція відображення списку контактів"""
     list_a = []
     for k in CONTACTS.keys():
-        list_a.append(k)
+        list_a.append(k.title())
         list_a.append(CONTACTS[k])
         list_a.append("\n")
     answer = " ".join(list_a)
